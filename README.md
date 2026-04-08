@@ -1,8 +1,12 @@
 # Marker
 
-A review tool for slides. Not a slide tool with review bolted on.
+You build the deck. You send it for review. Feedback arrives in Slack, email, screenshot markup. You open the source file, find each thing mentioned, make the edit, re-export, re-send. The reviewer sends more notes. You do it again.
 
-Build a deck, share a link, reviewer clicks elements and leaves comments, run one command, AI reads every comment and applies the edits. Three-minute review cycle.
+The content work takes 30 minutes. The review loop takes 3 hours.
+
+Marker fixes the loop. Not the slides.
+
+It's an open-source CLI that renders a JSON file as a slide deck with inline editing and element-level comments. Click a bullet to comment on that bullet, not the whole slide. Run one command. AI reads every comment together, produces the edits, you approve, done. Three minutes instead of thirty.
 
 ## Install
 
@@ -13,29 +17,34 @@ npm install -g marker-slides
 ## Quick start
 
 ```bash
-marker init quarterly-report     # creates deck with 4 starter slides
+marker init quarterly-report
 cd quarterly-report
-marker dev                       # opens browser — edit slides, add comments
+marker dev
 ```
 
-## The 3-minute review cycle
+Browser opens. Four starter slides. Click to edit. Arrow keys to navigate.
+
+## The review loop
+
+This is the whole product. Everything else is plumbing.
 
 ```bash
-# 1. Author builds deck
+# Build your deck
 marker dev
 
-# 2. Author shares for review
+# Share it
 marker share                     # deploys to surge.sh, prints URL
 
-# 3. Reviewer opens URL, clicks elements, leaves comments, copies feedback
+# Reviewer opens the link, clicks elements, types comments, hits "Copy feedback"
+# They paste the result in Slack. No install, no login, no account.
 
-# 4. Author imports feedback
-echo '<paste>' | marker import   # or: marker import feedback.json
+# Import the feedback
+echo '<paste>' | marker import
 
-# 5. AI processes all comments into edits
-marker review                    # shows proposed edits, approve/reject
+# AI processes every comment into a concrete edit
+marker review
 
-# 6. Done. Re-share if needed.
+# Approve the edits. Re-share.
 marker share
 ```
 
@@ -43,88 +52,68 @@ marker share
 
 | Command | What it does |
 |---------|-------------|
-| `marker init [name]` | Create a new deck (4 starter slides) |
-| `marker dev` | Start local dev server with WYSIWYG editing |
-| `marker add [type]` | Add a slide: title, section, bullets, comparison, metric, table |
-| `marker status` | Show slide count, open comments, deck info |
-| `marker share` | Build static deck and deploy to surge.sh |
-| `marker share --local` | Build to ./dist/ without deploying |
+| `marker init [name]` | Create a new deck |
+| `marker dev` | Local dev server with editing and comments |
+| `marker add [type]` | Add a slide (title, section, bullets, comparison, metric, table) |
+| `marker status` | Slide count, open comments, deck info |
+| `marker share` | Build and deploy for review |
+| `marker share --local` | Build to ./dist/ only |
 | `marker import [file]` | Import reviewer comments from file or stdin |
-| `marker review` | AI processes open comments into edits (needs ANTHROPIC_API_KEY) |
-| `marker review --dry-run` | List open comments without calling the AI |
-| `marker review --apply` | Apply all edits without confirmation |
+| `marker review` | AI turns comments into edits |
+| `marker review --dry-run` | List comments without calling the AI |
+| `marker review --apply` | Apply all edits without asking |
 
 ## How it works
 
-A deck is a JSON file. Every text element has a stable ID. Comments reference element IDs, not slide numbers. AI reads the comments and the content together and produces structured edits.
+A deck is a JSON file. Every text element gets a stable ID. Comments reference IDs, not slide numbers. The AI sees all the comments and the surrounding content in one pass, so it can reason about how edits interact.
 
 ```
 deck.json
-├── meta          {title, author, date, version}
-├── slides[]      6 types: title, section, bullets, comparison, metric, table
+├── meta          title, author, date, version
+├── slides[]      6 types, each with typed content
 ├── comments[]    element-level, with context snapshots
-└── config        {theme, aspectRatio}
+└── config        theme, aspect ratio
 ```
 
-## Slide types
+### Slide types
 
-| Type | Use for |
-|------|---------|
-| **title** | Deck cover — heading, subheading, date |
-| **section** | Section divider |
-| **bullets** | Heading + bullet points + optional kicker |
-| **comparison** | 2-3 column side-by-side (before/after, option A/B) |
-| **metric** | Big number KPI cards with direction arrows |
-| **table** | Data table with headers and rows |
+**title** for covers. **section** for dividers. **bullets** for the workhorse slides. **comparison** for side-by-side columns. **metric** for big KPI numbers. **table** for data.
+
+These six cover 90% of recurring exec decks, monthly reports, and client deliverables.
 
 ## AI review
 
-Set your API key:
-
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
-```
-
-Or add it to `marker.config.js`:
-
-```js
-export default {
-  anthropicApiKey: 'sk-ant-...',
-};
-```
-
-Then run:
-
-```bash
 marker review
 ```
 
-The AI reads all open comments together (not one at a time) so it can reason about how they interact. Each edit is shown as a diff before you approve.
+Or set it in `marker.config.js`:
+
+```js
+export default {
+  anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+};
+```
+
+The model reads every open comment in a single prompt. Not one at a time. This matters because comment A might change a heading, and comment B might reference that heading. Sequential processing produces incoherent edits. Batch processing doesn't.
+
+Each proposed edit shows a before/after diff. You approve, reject, or let it run with `--apply`.
 
 ## For reviewers
 
-When someone shares a Marker deck URL with you:
+Someone shared a Marker URL with you. Here's what you do:
 
 1. Open the link
-2. Navigate slides with arrow keys
-3. Click any element (heading, bullet, metric) to comment
+2. Arrow keys to navigate
+3. Click any element to comment on it
 4. Type your feedback
-5. Click **"Copy all feedback to clipboard"**
-6. Paste the result in Slack/email
+5. Click "Copy all feedback to clipboard"
+6. Paste it in Slack
 
-No install, no login, no account needed.
-
-## Why Marker
-
-Every existing tool treats the review loop as someone else's problem:
-
-- **Slidev, Marp, Reveal.js** — render slides, zero review features
-- **Google Slides** — comments in a sidebar, no AI, no element targeting
-- **Pitch** — best workflow at $20/seat, still slide-level comments
-- **Gamma** — AI generates slides but has no review system
-
-Marker is the only tool where comments are first-class data and AI processes feedback into edits.
+That's it. No install. No account. Just a URL and a clipboard.
 
 ## License
 
 MIT
+
