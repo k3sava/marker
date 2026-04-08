@@ -1,12 +1,10 @@
 # Marker
 
-You build the deck. You send it for review. Feedback arrives in Slack, email, screenshot markup. You open the source file, find each thing mentioned, make the edit, re-export, re-send. The reviewer sends more notes. You do it again.
-
-The content work takes 30 minutes. The review loop takes 3 hours.
+You build the deck. You send it for review. Feedback arrives in Slack, email, screenshot markup. You open the source file, find each thing mentioned, make the edit, re-export, re-send. The reviewer sends more notes. You do it again. The content work takes 30 minutes. The review loop takes 3 hours.
 
 Marker fixes the loop. Not the slides.
 
-It's an open-source CLI that renders a JSON file as a slide deck with inline editing and element-level comments. Click a bullet to comment on that bullet, not the whole slide. Run one command. AI reads every comment together, produces the edits, you approve, done. Three minutes instead of thirty.
+An open-source CLI that renders a JSON file as a slide deck with inline editing and element-level comments. Click to add comments. Run one command. AI reads every comment together, produces the edits, you approve, done. Time taken? 3 minutes instead of 30.
 
 ## Install
 
