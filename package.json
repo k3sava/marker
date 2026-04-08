@@ -1,0 +1,69 @@
+{
+  "name": "marker-slides",
+  "version": "0.1.0",
+  "description": "Review-native slide tool. Element-level comments, AI review processing.",
+  "type": "module",
+  "bin": {
+    "marker": "./bin/marker.js"
+  },
+  "scripts": {
+    "build": "npm run build:renderer && npm run build:cli",
+    "build:cli": "tsup",
+    "build:renderer": "vite build",
+    "prepublishOnly": "npm run build",
+    "dev": "tsx src/cli/index.ts dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["slides", "presentations", "review", "comments", "cli", "ai"],
+  "author": "Kesava M",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "express": "^5.1.0",
+    "get-port-please": "^3.1.2",
+    "nanoid": "^5.1.5",
+    "open": "^10.1.2",
+    "ws": "^8.18.2",
+    "vite": "^6.3.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^3.4.17",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.2",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/ws": "^8.18.1",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": ">=0.30.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/sdk": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "src/renderer",
+    "src/core",
+    "tailwind.config.js",
+    "postcss.config.js",
+    "vite.config.ts",
+    "tsconfig.json"
+  ]
+}
