@@ -6,6 +6,9 @@ import { BulletsSlide } from './BulletsSlide';
 import { ComparisonSlide } from './ComparisonSlide';
 import { MetricSlide } from './MetricSlide';
 import { TableSlide } from './TableSlide';
+import { ScoreboardSlide } from './ScoreboardSlide';
+import { KpiGridSlide } from './KpiGridSlide';
+import { LagPlanSlide } from './LagPlanSlide';
 
 export interface SlideProps {
   slide: Slide;
@@ -23,6 +26,9 @@ export function SlideRenderer(props: SlideProps) {
     case 'comparison': return <ComparisonSlide {...props} slide={props.slide} />;
     case 'metric': return <MetricSlide {...props} slide={props.slide} />;
     case 'table': return <TableSlide {...props} slide={props.slide} />;
+    case 'scoreboard': return <ScoreboardSlide {...props} slide={props.slide} />;
+    case 'kpi-grid': return <KpiGridSlide {...props} slide={props.slide} />;
+    case 'lag-plan': return <LagPlanSlide {...props} slide={props.slide} />;
     default:
       return (
         <div className="slide-frame flex items-center justify-center">

@@ -48,11 +48,69 @@ export interface TableContent {
   kicker?: TextElement;
 }
 
+// -- Rich review-deck slide types (added 2026-04-28 for quarterly-review format) --
+
+export type ScoreboardStatus = 'met' | 'partial' | 'miss' | 'neutral';
+
+export interface ScoreboardRow {
+  stream: TextElement;
+  context?: TextElement;          // small caption under stream label
+  delta: TextElement;             // achieved-vs-committed prose
+  statusLabel: TextElement;       // pill text e.g. "Met" or "Wins met · paid missed"
+  status: ScoreboardStatus;
+}
+
+export interface ScoreboardContent {
+  heading: TextElement;
+  kicker?: TextElement;
+  rows: ScoreboardRow[];
+  footnote?: TextElement;         // e.g. "Cross-pod where PMM contributed: ..."
+}
+
+export type KpiTileVariant = 'paper' | 'accent' | 'invert';
+
+export interface KpiTile {
+  label: TextElement;             // small uppercase label
+  value: TextElement;             // big number
+  sub?: TextElement;              // small caption beneath value
+  delta?: TextElement;            // optional change indicator
+  direction?: 'up' | 'down' | 'neutral';
+  variant?: KpiTileVariant;       // default: paper
+}
+
+export interface KpiGridContent {
+  heading: TextElement;
+  kicker?: TextElement;
+  tiles: KpiTile[];               // typically 3-4 tiles
+  footstrip?: TextElement;        // optional caption row beneath tiles
+}
+
+export interface LagPlanContent {
+  heading: TextElement;
+  kicker?: TextElement;
+  lagItems: TextElement[];        // "Where we lag" bullets
+  planItems: TextElement[];       // "Q-N+1 plan" bullets
+  planOwnerLabel?: TextElement;   // e.g. "owner: Reshma · per Apr 15 realignment"
+  spendNote?: TextElement;        // optional spend strip below the panels
+}
+
 // -- Slide type union --
 
-export type SlideType = 'title' | 'section' | 'bullets' | 'comparison' | 'metric' | 'table';
+export type SlideType =
+  | 'title'
+  | 'section'
+  | 'bullets'
+  | 'comparison'
+  | 'metric'
+  | 'table'
+  | 'scoreboard'
+  | 'kpi-grid'
+  | 'lag-plan';
 
-export const SLIDE_TYPES: SlideType[] = ['title', 'section', 'bullets', 'comparison', 'metric', 'table'];
+export const SLIDE_TYPES: SlideType[] = [
+  'title', 'section', 'bullets', 'comparison', 'metric', 'table',
+  'scoreboard', 'kpi-grid', 'lag-plan',
+];
 
 export type Slide =
   | { id: string; type: 'title'; content: TitleContent }
@@ -60,7 +118,10 @@ export type Slide =
   | { id: string; type: 'bullets'; content: BulletsContent }
   | { id: string; type: 'comparison'; content: ComparisonContent }
   | { id: string; type: 'metric'; content: MetricContent }
-  | { id: string; type: 'table'; content: TableContent };
+  | { id: string; type: 'table'; content: TableContent }
+  | { id: string; type: 'scoreboard'; content: ScoreboardContent }
+  | { id: string; type: 'kpi-grid'; content: KpiGridContent }
+  | { id: string; type: 'lag-plan'; content: LagPlanContent };
 
 // -- Comments --
 

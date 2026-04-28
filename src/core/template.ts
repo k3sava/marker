@@ -142,6 +142,82 @@ export function createSlideTemplate(type: string, sid?: string): { id: string; t
           ],
         },
       };
+    case 'scoreboard':
+      return {
+        id, type: 'scoreboard',
+        content: {
+          heading: el(elementId(id, 'h'), 'Q1 at a glance'),
+          kicker: el(elementId(id, 'k'), 'Scoreboard'),
+          rows: [
+            {
+              stream: el(elementId(id, 'r1s'), 'Stream 1'),
+              context: el(elementId(id, 'r1c'), 'one-line context'),
+              delta: el(elementId(id, 'r1d'), 'Achieved vs committed prose goes here'),
+              statusLabel: el(elementId(id, 'r1l'), 'Met'),
+              status: 'met' as const,
+            },
+            {
+              stream: el(elementId(id, 'r2s'), 'Stream 2'),
+              context: el(elementId(id, 'r2c'), 'one-line context'),
+              delta: el(elementId(id, 'r2d'), 'Achieved vs committed prose goes here'),
+              statusLabel: el(elementId(id, 'r2l'), 'Wins met · paid missed'),
+              status: 'partial' as const,
+            },
+          ],
+          footnote: el(elementId(id, 'fn'), 'Cross-pod where we contributed: ...'),
+        },
+      };
+    case 'kpi-grid':
+      return {
+        id, type: 'kpi-grid',
+        content: {
+          heading: el(elementId(id, 'h'), 'Stream highlights'),
+          kicker: el(elementId(id, 'k'), 'Stream N'),
+          tiles: [
+            {
+              label: el(elementId(id, 'l1'), 'KPI label'),
+              value: el(elementId(id, 'v1'), '12'),
+              sub: el(elementId(id, 's1'), 'caption goes here'),
+              variant: 'accent' as const,
+            },
+            {
+              label: el(elementId(id, 'l2'), 'KPI label'),
+              value: el(elementId(id, 'v2'), '730'),
+              sub: el(elementId(id, 's2'), 'caption goes here'),
+            },
+            {
+              label: el(elementId(id, 'l3'), 'KPI label'),
+              value: el(elementId(id, 'v3'), '4 / 4'),
+              sub: el(elementId(id, 's3'), 'caption goes here'),
+            },
+            {
+              label: el(elementId(id, 'l4'), 'KPI label'),
+              value: el(elementId(id, 'v4'), 'Apr 23'),
+              sub: el(elementId(id, 's4'), 'caption goes here'),
+              variant: 'invert' as const,
+            },
+          ],
+        },
+      };
+    case 'lag-plan':
+      return {
+        id, type: 'lag-plan',
+        content: {
+          heading: el(elementId(id, 'h'), 'Where we lag · what we plan'),
+          kicker: el(elementId(id, 'k'), 'Stream N · Q1 → Q2'),
+          lagItems: [
+            el(elementId(id, 'lag1'), 'First gap goes here.'),
+            el(elementId(id, 'lag2'), 'Second gap goes here.'),
+            el(elementId(id, 'lag3'), 'Third gap goes here.'),
+          ],
+          planItems: [
+            el(elementId(id, 'p1'), 'First plan item.'),
+            el(elementId(id, 'p2'), 'Second plan item.'),
+            el(elementId(id, 'p3'), 'Where this leads next iteration.'),
+          ],
+          planOwnerLabel: el(elementId(id, 'po'), 'owner: Person · per realignment'),
+        },
+      };
     default:
       return null;
   }
