@@ -48,11 +48,19 @@ export interface TableContent {
   kicker?: TextElement;
 }
 
+// -- Freeform slide: raw HTML with data-mid attributes for editable regions.
+//    Used by the justcall theme and any custom layouts authored as HTML.
+export interface FreeformContent {
+  label: string;   // shown in the thumbnail rail
+  layout: string;  // layout slug (e.g. 'cover', 'kpi-dashboard') — for thumbnails / templating
+  html: string;    // full slide HTML; every editable element carries data-mid="<id>"
+}
+
 // -- Slide type union --
 
-export type SlideType = 'title' | 'section' | 'bullets' | 'comparison' | 'metric' | 'table';
+export type SlideType = 'title' | 'section' | 'bullets' | 'comparison' | 'metric' | 'table' | 'freeform';
 
-export const SLIDE_TYPES: SlideType[] = ['title', 'section', 'bullets', 'comparison', 'metric', 'table'];
+export const SLIDE_TYPES: SlideType[] = ['title', 'section', 'bullets', 'comparison', 'metric', 'table', 'freeform'];
 
 export type Slide =
   | { id: string; type: 'title'; content: TitleContent }
@@ -60,7 +68,8 @@ export type Slide =
   | { id: string; type: 'bullets'; content: BulletsContent }
   | { id: string; type: 'comparison'; content: ComparisonContent }
   | { id: string; type: 'metric'; content: MetricContent }
-  | { id: string; type: 'table'; content: TableContent };
+  | { id: string; type: 'table'; content: TableContent }
+  | { id: string; type: 'freeform'; content: FreeformContent };
 
 // -- Comments --
 

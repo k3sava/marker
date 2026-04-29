@@ -1,11 +1,26 @@
 import { resolve } from 'path';
+import { homedir } from 'os';
 import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import { readFile, writeFile, cp, mkdir } from 'fs/promises';
 import { readDeck, deckExists } from '../core/deck.js';
 import { rendererDist } from '../core/paths.js';
 
-export async function shareCommand(opts?: { local?: boolean }) {
+interface ShareOpts {
+  local?: boolean;
+  to?: string;       // 'surge' | 'justcall-staging' | 'local'
+  path?: string;     // explicit deploy path (overrides --to defaults)
+}
+
+function slugify(s: string): string {
+  return (s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80) || 'untitled';
+}
+
+export async function shareCommand(opts?: ShareOpts) {
   const dir = resolve(process.cwd());
 
   if (!deckExists(dir)) {
@@ -39,26 +54,55 @@ export async function shareCommand(opts?: { local?: boolean }) {
 
   console.log(`Built to ${distDir}/ (${deck.slides.length} slides)`);
 
-  if (opts?.local) {
+  const target = opts?.to || (opts?.local ? 'local' : 'surge');
+
+  if (target === 'local') {
     console.log('Serve with: npx serve dist');
     return;
   }
 
-  // Try surge
-  let hasSurge = false;
-  try { execSync('which surge', { stdio: 'pipe' }); hasSurge = true; } catch { /* */ }
+  if (target === 'justcall-staging') {
+    const authorSlug = slugify(deck.meta.author);
+    const titleSlug = slugify(deck.meta.title);
+    const date = new Date().toISOString().split('T')[0];
+    const baseDefault = resolve(homedir(), 'Projects', 'justcall-staging', 'public', 'reports');
+    const root = opts?.path || baseDefault;
+    const targetDir = resolve(root, authorSlug, `${titleSlug}-${date}`);
 
-  if (hasSurge) {
-    const slug = dir.split('/').pop()?.replace(/[^a-z0-9-]/gi, '-').toLowerCase() || 'deck';
-    const domain = `${slug}-${Date.now().toString(36)}.surge.sh`;
-    console.log(`Deploying to ${domain}...`);
-    try {
-      execSync(`surge ${distDir} ${domain}`, { stdio: 'inherit' });
-      console.log(`\n  Live at: https://${domain}\n`);
-    } catch {
-      console.error('Surge deploy failed. Your build is at ./dist/');
+    if (!existsSync(resolve(root, '..'))) {
+      console.error(`Error: justcall-staging not found at ${resolve(root, '..')}. Pass --path <root>.`);
+      process.exit(1);
     }
-  } else {
-    console.log('\nTo share online: npm i -g surge && surge dist');
+
+    console.log(`Publishing to justcall-staging at ${targetDir}/ ...`);
+    await mkdir(targetDir, { recursive: true });
+    await cp(distDir, targetDir, { recursive: true });
+    console.log(`\n  Published. Local path: ${targetDir}`);
+    console.log(`  Live URL: https://justcall-staging.vercel.app/reports/${authorSlug}/${titleSlug}-${date}/`);
+    console.log(`\n  Don't forget: cd ${resolve(root, '..', '..')} && git add . && git commit && git push\n`);
+    return;
   }
+
+  if (target === 'surge') {
+    let hasSurge = false;
+    try { execSync('which surge', { stdio: 'pipe' }); hasSurge = true; } catch { /* */ }
+
+    if (hasSurge) {
+      const slug = slugify(dir.split('/').pop() || 'deck');
+      const domain = `${slug}-${Date.now().toString(36)}.surge.sh`;
+      console.log(`Deploying to ${domain}...`);
+      try {
+        execSync(`surge ${distDir} ${domain}`, { stdio: 'inherit' });
+        console.log(`\n  Live at: https://${domain}\n`);
+      } catch {
+        console.error('Surge deploy failed. Your build is at ./dist/');
+      }
+    } else {
+      console.log('\nTo share online: npm i -g surge && surge dist');
+    }
+    return;
+  }
+
+  console.error(`Error: unknown share target "${target}". Valid: local, surge, justcall-staging.`);
+  process.exit(1);
 }

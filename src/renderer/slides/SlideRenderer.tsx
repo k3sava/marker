@@ -6,6 +6,7 @@ import { BulletsSlide } from './BulletsSlide';
 import { ComparisonSlide } from './ComparisonSlide';
 import { MetricSlide } from './MetricSlide';
 import { TableSlide } from './TableSlide';
+import { FreeformSlide } from './FreeformSlide';
 
 export interface SlideProps {
   slide: Slide;
@@ -13,6 +14,8 @@ export interface SlideProps {
   comments: Comment[];
   onEdit: (targetId: string, value: string) => void;
   onComment: (targetId: string) => void;
+  totalSlides?: number;
+  slideIndex?: number;
 }
 
 export function SlideRenderer(props: SlideProps) {
@@ -23,6 +26,7 @@ export function SlideRenderer(props: SlideProps) {
     case 'comparison': return <ComparisonSlide {...props} slide={props.slide} />;
     case 'metric': return <MetricSlide {...props} slide={props.slide} />;
     case 'table': return <TableSlide {...props} slide={props.slide} />;
+    case 'freeform': return <FreeformSlide {...props} slide={props.slide} />;
     default:
       return (
         <div className="slide-frame flex items-center justify-center">

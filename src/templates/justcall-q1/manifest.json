@@ -1,0 +1,19 @@
+{
+  "name": "justcall-q1",
+  "title": "JustCall Q1 2026 PMM Quarterly Review",
+  "description": "11-slide PMM quarterly review deck. Six functional streams, Q1 results vs commitments, Q2 plan and operator runbook.",
+  "theme": "justcall",
+  "layouts": [
+    { "slug": "01-cover", "file": "01-cover.html", "label": "Cover" },
+    { "slug": "02-kpi-dashboard", "file": "02-kpi-dashboard.html", "label": "Q1 at a Glance" },
+    { "slug": "03-stream-metrics", "file": "03-stream-metrics.html", "label": "PMM Core + AI Growth" },
+    { "slug": "04-stream-initiatives", "file": "04-stream-initiatives.html", "label": "Sales Enablement" },
+    { "slug": "05-lag-plan", "file": "05-lag-plan.html", "label": "Sales Enablement, Lag + Plan" },
+    { "slug": "06-competitive", "file": "06-competitive.html", "label": "Competitive Displacement" },
+    { "slug": "07-ecosystem", "file": "07-ecosystem.html", "label": "Ecosystem Marketing" },
+    { "slug": "08-narrative", "file": "08-narrative.html", "label": "Narrative-Led Branding" },
+    { "slug": "09-product-gtm", "file": "09-product-gtm.html", "label": "Product GTM" },
+    { "slug": "10-closing", "file": "10-closing.html", "label": "Spend + Q2" },
+    { "slug": "11-runbook", "file": "11-runbook.html", "label": "Q2 by Role" }
+  ]
+}

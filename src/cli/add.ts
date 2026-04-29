@@ -1,9 +1,16 @@
 import { resolve } from 'path';
 import { readDeck, writeDeck, deckExists } from '../core/deck.js';
-import { createSlideTemplate } from '../core/template.js';
+import { createFreeformSlideFromTemplate, createSlideTemplate } from '../core/template.js';
+import { loadLayoutHtml, loadTemplateManifest } from '../core/templates.js';
 import { SLIDE_TYPES, type Slide, type SlideType } from '../core/types.js';
 
-export async function addCommand(type?: string, opts?: { after?: string }) {
+interface AddOpts {
+  after?: string;
+  layout?: string;
+  template?: string;
+}
+
+export async function addCommand(type?: string, opts?: AddOpts) {
   const dir = resolve(process.cwd());
 
   if (!deckExists(dir)) {
@@ -14,6 +21,8 @@ export async function addCommand(type?: string, opts?: { after?: string }) {
   if (!type) {
     console.log('Available slide types:');
     SLIDE_TYPES.forEach(t => console.log(`  marker add ${t}`));
+    console.log('\nFor freeform slides, pick a layout from a template:');
+    console.log('  marker add freeform --template justcall-q1 --layout kpi-dashboard');
     return;
   }
 
@@ -23,10 +32,28 @@ export async function addCommand(type?: string, opts?: { after?: string }) {
   }
 
   const deck = await readDeck(dir);
-  const template = createSlideTemplate(type);
-  if (!template) { console.error('Failed to create template.'); process.exit(1); }
 
-  const newSlide = template as unknown as Slide;
+  let newSlide: Slide;
+
+  if (type === 'freeform' && opts?.layout) {
+    const templateName = opts.template || deck.config.theme;
+    const manifest = loadTemplateManifest(templateName);
+    if (!manifest) {
+      console.error(`Error: no template "${templateName}" with manifest. Pass --template <name>.`);
+      process.exit(1);
+    }
+    const entry = manifest.layouts.find(l => l.slug === opts.layout);
+    if (!entry) {
+      console.error(`Error: layout "${opts.layout}" not found in template "${templateName}". Available: ${manifest.layouts.map(l => l.slug).join(', ')}`);
+      process.exit(1);
+    }
+    const html = loadLayoutHtml(templateName, entry.file);
+    newSlide = createFreeformSlideFromTemplate(entry.slug, entry.label, html) as Slide;
+  } else {
+    const template = createSlideTemplate(type);
+    if (!template) { console.error('Failed to create template.'); process.exit(1); }
+    newSlide = template as unknown as Slide;
+  }
 
   if (opts?.after) {
     const idx = deck.slides.findIndex(s => s.id === opts.after);
@@ -40,5 +67,5 @@ export async function addCommand(type?: string, opts?: { after?: string }) {
   }
 
   await writeDeck(dir, deck);
-  console.log(`Added ${type} slide (${newSlide.id}). Deck now has ${deck.slides.length} slides.`);
+  console.log(`Added ${type}${opts?.layout ? ` (${opts.layout})` : ''} slide (${newSlide.id}). Deck now has ${deck.slides.length} slides.`);
 }

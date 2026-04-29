@@ -142,7 +142,31 @@ export function createSlideTemplate(type: string, sid?: string): { id: string; t
           ],
         },
       };
+    case 'freeform':
+      return {
+        id, type: 'freeform',
+        content: {
+          label: 'New slide',
+          layout: 'blank',
+          html: `<section data-label="New slide">\n  <div class="stage">\n    <h2 class="h-large" data-mid="${id}-h">New slide</h2>\n    <p class="lede" data-mid="${id}-body">Write your content here.</p>\n  </div>\n</section>`,
+        },
+      };
     default:
       return null;
   }
+}
+
+/**
+ * Build a freeform slide from a layout HTML template. The template is expected
+ * to already contain `data-mid` attributes; we re-namespace them under the new
+ * slide id so multiple instances of the same layout don't collide.
+ */
+export function createFreeformSlideFromTemplate(layoutSlug: string, label: string, templateHtml: string, sid?: string) {
+  const id = sid ?? slideId();
+  const namespaced = templateHtml.replace(/data-mid="([^"]+)"/g, (_m, mid) => `data-mid="${id}-${mid}"`);
+  return {
+    id,
+    type: 'freeform' as const,
+    content: { label, layout: layoutSlug, html: namespaced },
+  };
 }

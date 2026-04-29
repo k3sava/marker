@@ -1,8 +1,16 @@
 import type { Deck, Slide, TextElement } from './types.js';
+import { findMidElement, listMids, readMid, stripTags, updateMidElement } from './freeform-html.js';
 
 /** Find a TextElement anywhere in the deck by its id */
 export function findElement(deck: Deck, targetId: string): { slide: Slide; element: TextElement } | null {
   for (const slide of deck.slides) {
+    if (slide.type === 'freeform') {
+      const inner = readMid(slide.content.html, targetId);
+      if (inner !== null) {
+        return { slide, element: { id: targetId, text: inner } };
+      }
+      continue;
+    }
     const el = findElementInContent(slide.content, targetId);
     if (el) return { slide, element: el };
   }
@@ -12,6 +20,14 @@ export function findElement(deck: Deck, targetId: string): { slide: Slide; eleme
 /** Update element text by ID. Returns true if found and updated. */
 export function updateElement(deck: Deck, targetId: string, newText: string): boolean {
   for (const slide of deck.slides) {
+    if (slide.type === 'freeform') {
+      const updated = updateMidElement(slide.content.html, targetId, newText);
+      if (updated !== null) {
+        slide.content.html = updated;
+        return true;
+      }
+      continue;
+    }
     if (updateElementInContent(slide.content, targetId, newText)) return true;
   }
   return false;
@@ -20,6 +36,10 @@ export function updateElement(deck: Deck, targetId: string, newText: string): bo
 /** Find the slide that contains a given element ID */
 export function findSlideForElement(deck: Deck, targetId: string): Slide | null {
   for (const slide of deck.slides) {
+    if (slide.type === 'freeform') {
+      if (findMidElement(slide.content.html, targetId)) return slide;
+      continue;
+    }
     if (findElementInContent(slide.content, targetId)) return slide;
   }
   return null;
@@ -27,6 +47,7 @@ export function findSlideForElement(deck: Deck, targetId: string): Slide | null 
 
 /** Get all element IDs in a slide */
 export function getSlideElementIds(slide: Slide): string[] {
+  if (slide.type === 'freeform') return listMids(slide.content.html);
   const ids: string[] = [];
   collectIds(slide.content, ids);
   return ids;
@@ -34,6 +55,16 @@ export function getSlideElementIds(slide: Slide): string[] {
 
 /** Extract the heading text from any slide */
 export function getSlideHeading(slide: Slide): string {
+  if (slide.type === 'freeform') {
+    // Prefer first h1/h2 inside the freeform HTML; fall back to the slide label.
+    const html = slide.content.html;
+    const m = /<h[12]\b[^>]*>([\s\S]*?)<\/h[12]>/i.exec(html);
+    if (m) {
+      const text = stripTags(m[1]);
+      if (text) return text;
+    }
+    return slide.content.label || '(untitled)';
+  }
   const content = slide.content as unknown as Record<string, unknown>;
   const heading = content.heading as { text?: string } | undefined;
   return heading?.text ?? '(untitled)';

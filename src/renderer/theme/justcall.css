@@ -1,0 +1,458 @@
+/* TODO: Inter font is not @import'd here. The renderer's index.html must add the same
+   preconnect/link tags used in the source deck:
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono&display=swap">
+*/
+
+  [data-theme="justcall"] {
+    --blue:        #1A4DDE;
+    --blue-deep:   #0B1B3F;
+    --blue-700:    #1740B8;
+    --blue-50:     #EDF2FF;
+    --blue-100:    #DCE6FF;
+    --ink:         #0F172A;
+    --ink-2:       #1E293B;
+    --muted:       #5B6577;
+    --muted-2:     #8A93A4;
+    --line:        #E4E8EF;
+    --line-2:      #EEF1F6;
+    --paper:       #F5F7FB;
+    --paper-2:     #FAFBFD;
+    --white:       #FFFFFF;
+    --green:       #0EA572;
+    --green-50:    #E5F7EE;
+    --amber:       #D9821A;
+    --amber-50:    #FBF1E1;
+    --red:         #C8412C;
+    --red-50:      #FAE7E2;
+  }
+  html[data-theme="justcall"], html[data-theme="justcall"] body { margin: 0; padding: 0; background: #0a0a0a; height: 100vh; overflow: hidden; }
+  html[data-theme="justcall"] body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  /* Single-slide-at-a-time presentation. Slide fills the viewport; the in-slide
+     footer doubles as the nav (clickable dots + invisible prev/next zones).
+     Scale is JS-set on the deck-stage as --scale based on actual window dims. */
+  [data-theme="justcall"] deck-stage {
+    display: grid;
+    place-content: center; place-items: center;
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+    overflow: hidden;
+    --scale: 1;
+  }
+  [data-theme="justcall"] deck-stage > section {
+    grid-column: 1; grid-row: 1; /* stack all sections in one cell */
+    width: 1920px; height: 1080px;
+    position: relative;
+    transform: scale(var(--scale));
+    transform-origin: center center;
+    background: var(--white);
+    overflow: hidden;
+    box-sizing: border-box;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+  [data-theme="justcall"] deck-stage > section[data-active] {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Staggered reveal · guides eye in reading order (top-left → top-right → down).
+     The class is applied by JS when a slide activates; cumulative delay puts each
+     element a beat behind the previous. Remove for users who prefer no motion. */
+  [data-theme="justcall"] .reveal-stagger {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: slideReveal 360ms cubic-bezier(0.2, 0.75, 0.25, 1) forwards;
+  }
+  @keyframes slideReveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-theme="justcall"] .reveal-stagger { animation: none; opacity: 1; transform: none; }
+  }
+
+  /* In-slide footer dots are now interactive: clickable to jump, hover indicator. */
+  [data-theme="justcall"] .footer .progress .dot { cursor: pointer; }
+  [data-theme="justcall"] .footer .progress .dot:hover { background: var(--muted-2); }
+  [data-theme="justcall"] .slide-title .footer .progress .dot:hover,
+  [data-theme="justcall"] .close .footer .progress .dot:hover { background: rgba(255,255,255,0.55); }
+
+  /* Invisible click zones over left/right thirds for prev/next navigation
+     (Stories-style; doesn't conflict with chip/dots/page-counter clicks). */
+  [data-theme="justcall"] .deck-tap {
+    position: fixed; top: 0; bottom: 0;
+    width: 6vw;
+    z-index: 5;
+    cursor: pointer;
+    background: transparent;
+  }
+  [data-theme="justcall"] .deck-tap.prev { left: 0; }
+  [data-theme="justcall"] .deck-tap.next { right: 0; }
+  /* Don't intercept clicks on the in-slide footer (dots, chip, counter). */
+  [data-theme="justcall"] .deck-tap { pointer-events: none; }
+  @media (hover: hover) and (pointer: fine) {
+    [data-theme="justcall"] .deck-tap { pointer-events: auto; }
+  }
+  /* Subtle chevron hint on the tap zones for desktop only */
+  [data-theme="justcall"] .deck-tap::after {
+    content: '';
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 32px; height: 32px;
+    background-repeat: no-repeat; background-size: contain;
+    opacity: 0; transition: opacity 200ms ease;
+  }
+  [data-theme="justcall"] .deck-tap.prev::after {
+    left: 24px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'><path d='M15 18L9 12L15 6'/></svg>");
+  }
+  [data-theme="justcall"] .deck-tap.next::after {
+    right: 24px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'><path d='M9 18L15 12L9 6'/></svg>");
+  }
+  [data-theme="justcall"] .deck-tap:hover::after { opacity: 0.6; }
+  [data-theme="justcall"] .num { font-feature-settings: "tnum" 1; font-variant-numeric: tabular-nums; }
+  [data-theme="justcall"] .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ---- chrome ---- */
+  [data-theme="justcall"] .chrome {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 96px; padding: 0 96px;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 5;
+  }
+  [data-theme="justcall"] .chrome .logo img { height: 28px; width: auto; display: block; }
+  [data-theme="justcall"] .chrome .meta {
+    display: flex; align-items: center; gap: 18px;
+    font-size: 11.5px; color: var(--muted-2); font-weight: 600;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  [data-theme="justcall"] .chrome .meta .sep { color: var(--line); }
+  [data-theme="justcall"] .chrome .meta .pill {
+    background: transparent; color: var(--blue);
+    padding: 0; border-radius: 0;
+    font-weight: 700; letter-spacing: 0.16em; font-size: 11.5px;
+    text-transform: uppercase;
+  }
+
+  /* footer left chip · replaces in-header stream pill */
+  [data-theme="justcall"] .footer .chip {
+    background: var(--blue-50); color: var(--blue);
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-right: 16px;
+    white-space: nowrap; flex: 0 0 auto;
+  }
+  [data-theme="justcall"] .close .footer .chip,
+  [data-theme="justcall"] .slide-title .footer .chip { background: rgba(255,255,255,0.16); color: white; }
+
+  [data-theme="justcall"] .footer {
+    position: absolute; left: 96px; right: 96px; bottom: 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 12.5px; color: var(--muted-2);
+    letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+  }
+  /* Consistent progress bar: 10 identical dots per slide, active=elongated pill.
+     Anchored to the bottom-right via margin-left:auto so position is constant
+     regardless of source-text length. Replaces the per-slide counter. */
+  [data-theme="justcall"] .footer .progress {
+    margin-left: auto;
+    display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px;
+  }
+  [data-theme="justcall"] .footer .progress .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--line); transition: width 200ms ease, background 200ms ease;
+  }
+  [data-theme="justcall"] .footer .progress .dot.active {
+    width: 24px; border-radius: 999px; background: var(--blue);
+  }
+  [data-theme="justcall"] .slide-title .footer .progress .dot,
+  [data-theme="justcall"] .close .footer .progress .dot { background: rgba(255,255,255,0.28); }
+  [data-theme="justcall"] .slide-title .footer .progress .dot.active,
+  [data-theme="justcall"] .close .footer .progress .dot.active { background: white; }
+
+  /* Overflow safety: every slide content area cannot exceed authored bounds.
+     Together with deck-stage scaling this keeps content fitted at every viewport. */
+  [data-theme="justcall"] deck-stage > section { contain: layout paint size; }
+
+  /* ---------- Mobile / portrait reflow ----------
+     Below 900px or portrait ≤1280px: drop fixed 1920×1080 transform-scaled mode.
+     Each section becomes a vertically scrollable card with fluid typography
+     and stacked tables. Desktop unchanged. */
+  @media (max-width: 900px), (orientation: portrait) and (max-width: 1280px) {
+    html[data-theme="justcall"], html[data-theme="justcall"] body { height: auto; overflow-x: hidden; overflow-y: auto; background: #f5f7fb; }
+    [data-theme="justcall"] deck-stage { position: static; display: block; overflow: visible; background: transparent; }
+    [data-theme="justcall"] deck-stage > section {
+      width: 100%; height: auto; min-height: 100vh;
+      transform: none !important; visibility: visible !important; opacity: 1 !important;
+      pointer-events: auto !important;
+      contain: none;
+      padding: 64px 20px 96px;
+      box-sizing: border-box;
+      display: block;
+    }
+    [data-theme="justcall"] deck-stage > section + section { border-top: 8px solid #f5f7fb; }
+    [data-theme="justcall"] .chrome { position: static !important; height: auto; padding: 0 0 14px 0; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+    [data-theme="justcall"] .chrome .meta { font-size: 10px; }
+    [data-theme="justcall"] .stage { position: static !important; padding: 0 !important; min-height: 0; }
+    [data-theme="justcall"] .footer { position: static !important; left: auto; right: auto; bottom: auto; margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); flex-wrap: wrap; gap: 10px; font-size: 10.5px; }
+    [data-theme="justcall"] .footer .progress { margin-left: 0; flex-wrap: wrap; }
+    [data-theme="justcall"] .slide-title { padding-bottom: 56px; }
+    [data-theme="justcall"] .slide-title .pattern, [data-theme="justcall"] .pattern { display: none; }
+    [data-theme="justcall"] .h-mega    { font-size: clamp(40px, 9vw, 72px) !important; }
+    [data-theme="justcall"] .h-display { font-size: clamp(32px, 7vw, 56px) !important; }
+    [data-theme="justcall"] .h-large   { font-size: clamp(28px, 6.5vw, 48px) !important; }
+    [data-theme="justcall"] .h-med     { font-size: clamp(22px, 5vw, 32px) !important; }
+    [data-theme="justcall"] .h-sec     { font-size: clamp(18px, 4vw, 24px) !important; }
+    [data-theme="justcall"] .lede      { font-size: clamp(15px, 3.6vw, 18px) !important; }
+    [data-theme="justcall"] .body      { font-size: clamp(14px, 3.4vw, 16px) !important; }
+    [data-theme="justcall"] .two-col { grid-template-columns: 1fr !important; gap: 14px !important; }
+    [data-theme="justcall"] [style*="grid-template-columns: 1.2fr 1fr"],
+    [data-theme="justcall"] [style*="grid-template-columns: repeat(4, 1fr)"],
+    [data-theme="justcall"] [style*="grid-template-columns: repeat(3, 1fr)"],
+    [data-theme="justcall"] [style*="grid-template-columns: 1fr 1fr 1fr"],
+    [data-theme="justcall"] [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; gap: 12px !important; }
+    [data-theme="justcall"] .evtbl, [data-theme="justcall"] .evtbl thead, [data-theme="justcall"] .evtbl tbody, [data-theme="justcall"] .evtbl tr, [data-theme="justcall"] .evtbl td, [data-theme="justcall"] .evtbl th { display: block; width: 100%; box-sizing: border-box; }
+    [data-theme="justcall"] .evtbl colgroup, [data-theme="justcall"] .evtbl col { display: none; }
+    [data-theme="justcall"] .evtbl thead { display: none; }
+    [data-theme="justcall"] .evtbl tr { padding: 10px 0; border-bottom: 1px solid var(--line-2); }
+    [data-theme="justcall"] .evtbl td { padding: 4px 0; border: 0; }
+    [data-theme="justcall"] .evtbl td.col-src { font-weight: 700; color: var(--ink); width: auto; padding-bottom: 4px; }
+    [data-theme="justcall"] .metric { padding: 18px 20px; }
+    [data-theme="justcall"] .metric .val { font-size: 48px !important; }
+    [data-theme="justcall"] .metric .val.smaller { font-size: 36px !important; }
+    [data-theme="justcall"] .deck-tap { display: none !important; }
+    [data-theme="justcall"] .kpi-row { grid-template-columns: 1fr !important; gap: 8px !important; padding: 14px 0 !important; }
+    [data-theme="justcall"] .kpi-row .pill { justify-self: start !important; }
+    [data-theme="justcall"] .title-row { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+    [data-theme="justcall"] .close { padding: 64px 20px 96px; }
+  }
+
+  /* Status pill — fixed slot at top-right of title block, eyebrow-aligned */
+  [data-theme="justcall"] .title-row .pill { margin-top: 2px; flex: 0 0 auto; }
+
+  [data-theme="justcall"] .stage { min-height: 0; overflow: hidden; }
+
+  [data-theme="justcall"] .stage { position: absolute; top: 96px; left: 96px; right: 96px; bottom: 96px; }
+
+  [data-theme="justcall"] .eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--blue);
+  }
+  [data-theme="justcall"] .eyebrow.muted { color: var(--muted); }
+  [data-theme="justcall"] .eyebrow.on-blue { color: rgba(255,255,255,0.7); }
+
+  /* ---- titles ---- */
+  [data-theme="justcall"] .h-mega { font-size: 120px; font-weight: 900; letter-spacing: -0.04em; line-height: 1.04; color: var(--ink); margin: 0; }
+  [data-theme="justcall"] .h-display, [data-theme="justcall"] .h-large { font-size: 76px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--ink); margin: 0; }
+  [data-theme="justcall"] .h-med { font-size: 40px; font-weight: 700; letter-spacing: -0.018em; line-height: 1.18; color: var(--ink); margin: 0; }
+  [data-theme="justcall"] .h-sec { font-size: 24px; font-weight: 700; letter-spacing: -0.005em; line-height: 1.2; color: var(--ink); margin: 0; }
+
+  [data-theme="justcall"] .lede { font-size: 22px; line-height: 1.45; color: var(--ink-2); font-weight: 400; }
+  [data-theme="justcall"] .body { font-size: 17px; line-height: 1.55; color: var(--ink-2); }
+  [data-theme="justcall"] .body-s { font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+  /* ---- big metric tiles ---- */
+  [data-theme="justcall"] .metric {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px 32px 30px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+  [data-theme="justcall"] .metric:hover {
+    background: var(--white);
+    border-color: var(--muted-2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  }
+  [data-theme="justcall"] .metric.accent:hover, [data-theme="justcall"] .metric.invert:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(26, 77, 222, 0.18);
+  }
+  [data-theme="justcall"] .metric .lbl {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  [data-theme="justcall"] .metric .val {
+    font-size: 72px; font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; color: var(--ink); margin-top: 12px;
+  }
+  [data-theme="justcall"] .metric .val.smaller { font-size: 56px; }
+  [data-theme="justcall"] .metric .delta {
+    font-size: 14px; font-weight: 600;
+    margin-top: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  [data-theme="justcall"] .metric .delta.green  { color: var(--green); }
+  [data-theme="justcall"] .metric .delta.amber  { color: var(--amber); }
+  [data-theme="justcall"] .metric .delta.red    { color: var(--red); }
+  [data-theme="justcall"] .metric .delta.muted  { color: var(--muted); font-weight: 500; }
+  [data-theme="justcall"] .metric .sub { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
+  [data-theme="justcall"] .metric.invert {
+    background: var(--blue-deep); border-color: transparent; color: white;
+  }
+  [data-theme="justcall"] .metric.invert .lbl { color: rgba(255,255,255,0.6); }
+  [data-theme="justcall"] .metric.invert .val { color: white; }
+  [data-theme="justcall"] .metric.invert .sub { color: rgba(255,255,255,0.7); }
+
+  [data-theme="justcall"] .metric.accent {
+    background: var(--blue); border-color: transparent;
+  }
+  [data-theme="justcall"] .metric.accent .lbl { color: rgba(255,255,255,0.75); }
+  [data-theme="justcall"] .metric.accent .val { color: white; }
+  [data-theme="justcall"] .metric.accent .sub { color: rgba(255,255,255,0.85); }
+  [data-theme="justcall"] .metric.accent .delta.green { color: #BFFFD9; }
+
+  /* ---- status ---- */
+  [data-theme="justcall"] .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 5px 12px; border-radius: 999px;
+  }
+  [data-theme="justcall"] .pill.met     { background: var(--green-50); color: var(--green); }
+  [data-theme="justcall"] .pill.partial { background: var(--amber-50); color: var(--amber); }
+  [data-theme="justcall"] .pill.miss    { background: var(--red-50);   color: var(--red); }
+  [data-theme="justcall"] .pill.neutral { background: var(--paper);    color: var(--muted); }
+  [data-theme="justcall"] .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ---- two-col list (where we lag / Q2 plan) ---- */
+  [data-theme="justcall"] .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  [data-theme="justcall"] .panel {
+    border-radius: 18px; padding: 26px 30px 28px;
+    border: 1px solid var(--line);
+    background: white;
+  }
+  [data-theme="justcall"] .panel.lag  { background: #FDF6EC; border-color: #F2E2C5; }
+  [data-theme="justcall"] .panel.plan { background: var(--blue-50); border-color: var(--blue-100); }
+  [data-theme="justcall"] .panel .cap {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+  [data-theme="justcall"] .panel.lag  .cap { color: var(--amber); }
+  [data-theme="justcall"] .panel.plan .cap { color: var(--blue); }
+  [data-theme="justcall"] .panel .cap .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  [data-theme="justcall"] .panel ul { margin: 0; padding: 0; list-style: none; }
+  [data-theme="justcall"] .panel li {
+    font-size: 16px; line-height: 1.5;
+    padding-left: 18px; position: relative; margin-bottom: 10px; color: var(--ink-2);
+  }
+  [data-theme="justcall"] .panel li:last-child { margin-bottom: 0; }
+  [data-theme="justcall"] .panel.lag  li { color: #6E4F1E; }
+  [data-theme="justcall"] .panel.plan li { color: #1B3A8A; }
+  [data-theme="justcall"] .panel li::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; opacity: 0.65;
+    position: absolute; left: 0; top: 10px;
+  }
+  [data-theme="justcall"] .panel li b { font-weight: 700; }
+
+  /* ---- KPI rows for committed-vs-achieved (visual, not table) ---- */
+  [data-theme="justcall"] .kpi-row {
+    display: grid; grid-template-columns: 360px 56px 1fr auto;
+    align-items: center; gap: 24px;
+    padding: 22px 4px;
+    border-bottom: 1px solid var(--line-2);
+  }
+  [data-theme="justcall"] .kpi-row > * { min-width: 0; }
+  [data-theme="justcall"] .kpi-row:last-child { border-bottom: 0; }
+  [data-theme="justcall"] .kpi-row[data-goto] { cursor: pointer; transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease; padding-left: 14px; padding-right: 14px; border-radius: 12px; }
+  [data-theme="justcall"] .kpi-row[data-goto]:hover { background: var(--blue-50); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(26, 77, 222, 0.10); border-bottom-color: transparent; }
+  [data-theme="justcall"] .kpi-row[data-goto]:hover .stream { color: var(--blue); }
+  [data-theme="justcall"] .kpi-row[data-goto]:hover .arrow { color: var(--blue); transform: translateX(6px); transition: transform 160ms ease, color 160ms ease; }
+  [data-theme="justcall"] .kpi-row .stream {
+    font-size: 22px; font-weight: 700; color: var(--ink); letter-spacing: -0.005em;
+  }
+  [data-theme="justcall"] .kpi-row .stream small {
+    display: block; font-size: 12px; color: var(--muted);
+    font-weight: 500; letter-spacing: 0.04em; margin-top: 4px;
+  }
+  [data-theme="justcall"] .kpi-row .arrow {
+    font-size: 22px; color: var(--muted-2); text-align: center;
+  }
+  [data-theme="justcall"] .kpi-row .delta-text {
+    font-size: 16px; line-height: 1.45; color: var(--ink-2);
+  }
+  [data-theme="justcall"] .kpi-row .delta-text b { color: var(--ink); font-weight: 700; }
+  [data-theme="justcall"] .kpi-row .delta-text .strong { color: var(--blue); font-weight: 700; }
+  [data-theme="justcall"] .kpi-row .pill { justify-self: end; white-space: nowrap; }
+
+  [data-theme="justcall"] .row { display: flex; align-items: center; }
+  [data-theme="justcall"] .row.gap-12 { gap: 12px; }
+  [data-theme="justcall"] .row.gap-16 { gap: 16px; }
+  [data-theme="justcall"] .row.gap-20 { gap: 20px; }
+
+  /* ---- title slide ---- */
+  [data-theme="justcall"] .slide-title { background: var(--blue); color: white; }
+  [data-theme="justcall"] .slide-title .chrome .logo { color: white !important; }
+  [data-theme="justcall"] .close .chrome .logo { color: white !important; }
+  [data-theme="justcall"] .slide-title .chrome .meta { color: rgba(255,255,255,0.7); }
+  [data-theme="justcall"] .slide-title .chrome .meta .pill { background: rgba(255,255,255,0.16); color: white; }
+  [data-theme="justcall"] .slide-title .chrome .meta .sep { color: rgba(255,255,255,0.3); }
+  [data-theme="justcall"] .pattern {
+    position: absolute; right: -120px; top: 80px; bottom: 80px; width: 760px; opacity: 0.18; pointer-events: none;
+  }
+
+  /* ---- close slide ---- */
+  [data-theme="justcall"] .close { background: var(--blue-deep); color: white; }
+  [data-theme="justcall"] .close .chrome .meta { color: rgba(255,255,255,0.7); }
+
+  /* ---- big number storytelling ---- */
+  [data-theme="justcall"] .vs-block {
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; gap: 36px;
+    padding: 36px 40px; border-radius: 24px;
+  }
+  [data-theme="justcall"] .vs-block .v { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  [data-theme="justcall"] .vs-block .v .lbl {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  [data-theme="justcall"] .vs-block .v .num-big {
+    font-size: 110px; font-weight: 900; letter-spacing: -0.04em;
+    line-height: 0.95; color: var(--ink);
+  }
+  [data-theme="justcall"] .vs-block .v .sub { font-size: 14px; color: var(--muted); margin-top: 8px; }
+  [data-theme="justcall"] .vs-block .arrow {
+    font-size: 56px; color: var(--blue); font-weight: 300;
+  }
+
+/* === marker editor overlays === */
+[data-theme="justcall"] [contenteditable="true"]:hover { background-color: rgba(26,77,222,0.06); border-radius: 4px; outline: 1px dashed rgba(26,77,222,0.3); }
+[data-theme="justcall"] [contenteditable="true"]:focus { background-color: rgba(26,77,222,0.08); outline: 2px solid rgba(26,77,222,0.5); border-radius: 4px; }
+[data-theme="justcall"] [data-mid]:not([contenteditable="true"]):hover { outline: 1px dashed rgba(26,77,222,0.4); outline-offset: 2px; cursor: pointer; }
+[data-theme="justcall"] .marker-comment-indicator { display: inline-block; margin-left: 4px; width: 8px; height: 8px; border-radius: 50%; background: var(--amber, #D9821A); vertical-align: super; }
+
+/* === marker editor mode: deck-stage container overrides ===
+   The published deck pins deck-stage as position:fixed inset:0 and stacks every
+   slide section in the same grid cell, toggling visibility via [data-active].
+   In the marker editor we render exactly one slide at a time inside a scaled
+   wrapper, so we need to neutralize those rules.                              */
+[data-theme="justcall"] .marker-freeform-wrapper deck-stage {
+  position: static;
+  display: block;
+  inset: auto;
+  background: transparent;
+  overflow: visible;
+}
+[data-theme="justcall"] .marker-freeform-wrapper deck-stage > section {
+  /* Make the single rendered section always visible, ignore the
+     transform/visibility/opacity gating from the published-deck rules. */
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  transition: none;
+  contain: none;
+}
+/* Hide deck-tap zones (they were viewport-fixed nav handles for the
+   published deck — the marker editor has its own toolbar). */
+[data-theme="justcall"] .marker-freeform-wrapper .deck-tap { display: none !important; }

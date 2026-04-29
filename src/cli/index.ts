@@ -19,6 +19,7 @@ program
   .command('init [name]')
   .description('Create a new deck')
   .option('-a, --author <author>', 'Author name', '')
+  .option('-t, --template <name>', 'Template to scaffold from (e.g. justcall-q1)', 'default')
   .action(initCommand);
 
 program
@@ -30,14 +31,18 @@ program
 
 program
   .command('add [type]')
-  .description('Add a slide (title, section, bullets, comparison, metric, table)')
+  .description('Add a slide. For freeform: --layout <slug> --template <name>')
   .option('--after <slideId>', 'Insert after this slide')
+  .option('--layout <slug>', 'Freeform: layout slug from a template')
+  .option('--template <name>', 'Freeform: template name (defaults to deck theme)')
   .action(addCommand);
 
 program
   .command('share')
   .description('Build and deploy deck for review')
   .option('--local', 'Build to ./dist only, do not deploy')
+  .option('--to <target>', 'Deploy target: surge | justcall-staging | local', 'surge')
+  .option('--path <dir>', 'Override default deploy path for the chosen target')
   .action(shareCommand);
 
 program

@@ -162,6 +162,8 @@ export function App() {
               comments={slideComments}
               onEdit={handleEdit}
               onComment={(targetId) => { setCommentingOn(targetId); setPanelOpen(true); }}
+              totalSlides={deck.slides.length}
+              slideIndex={slideIdx}
             />
           )}
         </div>
